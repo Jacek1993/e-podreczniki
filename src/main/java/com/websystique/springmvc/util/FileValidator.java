@@ -1,10 +1,16 @@
 package com.websystique.springmvc.util;
 
+import com.websystique.springmvc.controller.FileUploadController;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.websystique.springmvc.model.FileBucket;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class FileValidator implements Validator {
@@ -21,5 +27,20 @@ public class FileValidator implements Validator {
 				errors.rejectValue("file", "missing.file");
 			}
 		}
+	}
+	@PostConstruct
+	public void init(){
+
+		File  directory= new File(FileUploadController.UPLOAD_LOCATION);
+		File [] files=directory.listFiles();
+
+		List<File> filesToRemove=new ArrayList<File>();
+		for(File file: files){
+			filesToRemove.add(file);
+		}
+
+		for(File file: filesToRemove)
+			file.delete();
+
 	}
 }

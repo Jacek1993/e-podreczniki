@@ -14,7 +14,7 @@
 		
 		Click on below links to see FileUpload in action.<br/><br/>
 		
-		<a href="<c:url value='/singleUpload' />">Single File Upload</a>  OR  <a href="<c:url value='multiUpload' />">Multi File Upload</a>
+		<a href="<c:url value='/singleUpload' />">Single File Upload</a>     <a href="<c:url value='/listfiles'/> ">List the files</a>
 	</div> 
 </body>
 </html>

@@ -3,12 +3,14 @@ package com.websystique.springmvc.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
@@ -19,21 +21,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.websystique.springmvc.model.FileBucket;
-import com.websystique.springmvc.model.MultiFileBucket;
 import com.websystique.springmvc.util.FileValidator;
-import com.websystique.springmvc.util.MultiFileValidator;
 
 @Controller
 public class FileUploadController {
 
-	private static String UPLOAD_LOCATION=System.getProperty("java.io.tmpdir");
+	public final static String UPLOAD_LOCATION=System.getProperty("java.io.tmpdir")+"/";
 	
 	@Autowired
 	FileValidator fileValidator;
 	
 
-	@Autowired
-	MultiFileValidator multiFileValidator;
 
 	
 	@InitBinder("fileBucket")
@@ -42,10 +40,6 @@ public class FileUploadController {
 	}
 
 
-	@InitBinder("multiFileBucket")
-	protected void initBinderMultiFileBucket(WebDataBinder binder) {
-	   binder.setValidator(multiFileValidator);
-	}
 
 	
 	@RequestMapping(value={"/","/welcome"}, method = RequestMethod.GET)
@@ -79,36 +73,23 @@ public class FileUploadController {
 		}
 	}
 
-	
-	@RequestMapping(value="/multiUpload", method = RequestMethod.GET)
-	public String getMultiUploadPage(ModelMap model) {
-		MultiFileBucket filesModel = new MultiFileBucket();
-		model.addAttribute("multiFileBucket", filesModel);
-		return "multiFileUploader";
+	@RequestMapping(value = "listfiles", method = RequestMethod.GET)
+	public String showAllFiles(Model model){
+
+		File directory=new File(UPLOAD_LOCATION);
+		File [] files=directory.listFiles();
+
+		List<String> list=new ArrayList<String>();
+
+
+		for(File file: files)
+			list.add(file.getName());
+
+
+		model.addAttribute("files", list);
+		return "filelist";
+
 	}
 
-	@RequestMapping(value="/multiUpload", method = RequestMethod.POST)
-	public String multiFileUpload(@Valid MultiFileBucket multiFileBucket, BindingResult result, ModelMap model) throws IOException {
 
-		
-		if (result.hasErrors()) {
-			System.out.println("validation errors in multi upload");
-			return "multiFileUploader";
-		} else {			
-			System.out.println("Fetching files");
-			List<String> fileNames= new ArrayList<String>();
-			
-			//Now do something with file...
-			for(FileBucket bucket : multiFileBucket.getFiles()){
-				FileCopyUtils.copy(bucket.getFile().getBytes(), new File(UPLOAD_LOCATION + bucket.getFile().getOriginalFilename()));
-				fileNames.add(bucket.getFile().getOriginalFilename());
-			}
-			
-			model.addAttribute("fileNames", fileNames);
-			return "multiSuccess";
-		}
-	}
-	
-	
-	
 }
